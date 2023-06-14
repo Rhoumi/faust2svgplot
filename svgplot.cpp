@@ -62,8 +62,7 @@
 #include "plot.h"
 #include "heatmap.h"
 
-//for testing
-
+//for testing REMOVE WHEN ARCH FILE
 #include "mydsp.cpp"
 
 using namespace std;
@@ -200,18 +199,6 @@ int main(int argc, char* argv[])
     //compute into inputs and outputs
 
     DSP->compute(nb_samples, DSP_inputs, DSP_outputs);
-
-    // init signal processor and the user interface values
-   // int nouts = DSP->getNumOutputs();
-   // channels chan(max(kFrames, int(buffer_size)), nouts);
-
-   // for (int chan=0; chan<DSP->getNumOutputs(); ++chan)
-   //         {
-   //             FAUSTFLOAT* sub_DSP_outputs = DSP_outputs[chan];
-   //             for (int frame=0; frame<buffer_size; ++frame) {
-   //             std::cout << "DSP " << sub_DSP_outputs[frame] << std::endl;
-   //             }
-   //         }
     
     //counter 
     int t = 0; 
@@ -225,7 +212,7 @@ int main(int argc, char* argv[])
            for (int chan=0; chan< DSP->getNumOutputs(); ++chan) 
            {    
                FAUSTFLOAT* sub_DSP_outputs = DSP_outputs[chan];
-               std::cout << "ch" << chan+1 << " :" << sub_DSP_outputs[frame] << "\t";
+               std::cout << " ch" << chan+1 << ": " << sub_DSP_outputs[frame] << "\t";
                line.add(frame+(t*buffer_size), sub_DSP_outputs[frame]);
                ////index n*buffer_size
                if (max <= sub_DSP_outputs[frame]) {
@@ -242,65 +229,9 @@ int main(int argc, char* argv[])
     plot.x.major(0).tick(nb_samples).label("Samples");
 	plot.y.major(0).minors(min, max).label("Values");
 
-    
-
-
-////    // skip <start> samples
-//    int start = int(start_at_sample);
-//    while (start > kFrames) {
-//        DSP->compute(kFrames, nullptr, chan.buffers());
-//        start -= kFrames;
-//    }
-//    if (start > 0) {
-//        DSP->compute(start, nullptr, chan.buffers());
-//    }
-    // end skip
-    
-//    // print channel headers
-//    for (int c = 0; c < nouts; c++) {
-//        if (c > 0)
-//            printf(",\t");
-//        printf("channel %d", c + 1);
-//    }
-//    disp.displayHeaders();
-//    cout << endl;
-//    
-//    int nbsamples = int(nb_samples);
-//    cout << setprecision(numeric_limits<FAUSTFLOAT>::max_digits10);
-//    
-//    // print by buffer
-//    while (nbsamples > buffer_size) {
-//        DSP->compute(buffer_size, 0, chan.buffers());
-//        for (int i = 0; i < buffer_size; i++) {
-//            for (int c = 0; c < nouts; c++) {
-//                if (c > 0)
-//                    printf(",\t");
-//                cout << chan.buffers()[c][i];
-//            }
-//            disp.display();
-//            cout << endl;
-//        }
-//        nbsamples -= buffer_size;
-//    }
-//    
-//    // print remaining frames
-//    if (nbsamples) {
-//        DSP->compute(nbsamples, 0, chan.buffers());
-//        for (int i = 0; i < nbsamples; i++) {
-//            for (int c = 0; c < nouts; c++) {
-//                if (c > 0)
-//                    printf(",\t");
-//
-//                cout << chan.buffers()[c][i];
-//
-//            }
-//            disp.display();
-//            cout << endl;
-//        }
-//    }
-    
+        
     delete DSP;
-	plot.write("default-2d.svg");
+	plot.write("mydsp.svg");
     return 0;
 }
 

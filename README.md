@@ -3,7 +3,7 @@
 
 ### usage
 ```
-c++ -std=c++11 -g csvplot.cpp `pkg-config --cflags --libs jack gtk+-2.0` -o faust2svgplot
+c++ -std=c++11 -g svgplot.cpp `pkg-config --cflags --libs jack gtk+-2.0` -o faust2svgplot
 
 ./faust2svgplot <-n (nb_samples)[default:4096]> <-r (sample_rate)[default:44100]>
 ```
