@@ -5,7 +5,7 @@
  each section for license and copyright information.
  *************************************************************************/
 
-/******************* BEGIN cvsplot.cpp ****************/
+/******************* BEGIN svgplot.cpp ****************/
 
 /************************************************************************
  FAUST Architecture File
@@ -32,18 +32,19 @@
  ************************************************************************
  ************************************************************************/
 
-#include <ctype.h>
-#include <errno.h>
-#include <limits.h>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
+//#include <ctype.h>
+//#include <errno.h>
+//#include <limits.h>
+//#include <math.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <string.h>
+//#include <time.h>
 #include <iostream>
-#include <limits>
 #include <string>
-#include <iomanip>
+//#include <limits>
+//#include <string>
+//#include <iomanip>
 
 #include "faust/audio/channels.h"
 #include "faust/dsp/dsp.h"
@@ -165,6 +166,16 @@ int main(int argc, char* argv[])
         exit(1);
     }
     
+    //signalsmith::plot::Line2D* chline = new signalsmith::plot::Line2D[DSP->getNumOutputs()];
+    //for (int i=0; i<DSP->getNumOutputs(); i++) {
+    //chline[i] = plot.line();
+    //}    
+
+
+    for (int i=0; i<DSP->getNumOutputs(); i++) {
+    //auto &ch+i = ;
+    }
+
     // SR has to be read before DSP init
     interface->process_one_init("-r");
     
@@ -206,28 +217,54 @@ int main(int argc, char* argv[])
     FAUSTFLOAT max = DSP_outputs[0][0]; 
     FAUSTFLOAT min =  DSP_outputs[0][0]; 
     //go through the outputs buffer
-    for (int frame=0; frame < nb_samples; ++frame) 
-    { 
-       std::cout << "frame: "<< frame;
-           for (int chan=0; chan< DSP->getNumOutputs(); ++chan) 
-           {    
-               FAUSTFLOAT* sub_DSP_outputs = DSP_outputs[chan];
-               std::cout << " ch" << chan+1 << ": " << sub_DSP_outputs[frame] << "\t";
-               line.add(frame+(t*buffer_size), sub_DSP_outputs[frame]);
-               ////index n*buffer_size
-               if (max <= sub_DSP_outputs[frame]) {
-               max = sub_DSP_outputs[frame];
-               }
-               if (min >= sub_DSP_outputs[frame]) {
-               min = sub_DSP_outputs[frame];
-               }  
-           }
-    std::cout << std::endl;
-    ++t;
-    }
+    //
+    //
+    //
+    //
+    //
+    for (int chan=0; chan< DSP->getNumOutputs(); ++chan) 
+        {
+        auto &line = plot.line();
+        for (int frame=0; frame < nb_samples; ++frame) 
+            { 
+                std::cout << "frame: "<< frame;
+                FAUSTFLOAT* sub_outputs = DSP_outputs[chan];
+                std::cout << " | Channel " << chan+1 << " :" << sub_outputs[frame] << "\t";
+                std::cout << std::endl;
+                line.add(frame, sub_outputs[frame]);
+              if (max <= sub_outputs[frame]) {
+              max = sub_outputs[frame];
+              }
+              if (min >= sub_outputs[frame]) {
+              min = sub_outputs[frame];
+              }  
+
+            }
+        
+        }
+   // for (int frame=0; frame < nb_samples; ++frame) 
+   // { 
+   //    std::cout << "frame: "<< frame;
+   //        for (int chan=0; chan< DSP->getNumOutputs(); ++chan) 
+   //        {    
+   //            FAUSTFLOAT* sub_DSP_outputs = DSP_outputs[chan];
+   //            std::cout << " ch" << chan+1 << ": " << sub_DSP_outputs[frame] << "\t";
+   //            line.add(frame, sub_DSP_outputs[frame]);
+   //            //line.add(frame+(t*buffer_size), sub_DSP_outputs[frame]);
+   //            ////index n*buffer_size
+   //            if (max <= sub_DSP_outputs[frame]) {
+   //            max = sub_DSP_outputs[frame];
+   //            }
+   //            if (min >= sub_DSP_outputs[frame]) {
+   //            min = sub_DSP_outputs[frame];
+   //            }  
+   //        }
+   // std::cout << std::endl;
+   // ++t;
+   // }
  
-    plot.x.major(0).tick(nb_samples).label("Samples");
-	plot.y.major(0).minors(min, max).label("Values");
+    plot.x.linear(0,nb_samples).major(0).minor(nb_samples).label("Samples");
+	plot.y.minors(min, max).label("Values");
 
         
     delete DSP;
