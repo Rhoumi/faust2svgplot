@@ -1,5 +1,5 @@
 # faust2svgplot
-## tool for creating a svg of plot values.
+## tool for creating a svg of plotted values.
 
 ### usage
 ```
@@ -14,6 +14,4 @@ c++ -std=c++11 -g svgplot.cpp `pkg-config --cflags --libs jack gtk+-2.0` -o faus
 
 ### to do
 * clean everything
-* add multiple channels possibility
-* solve axes label value nonsense
 * more & more
