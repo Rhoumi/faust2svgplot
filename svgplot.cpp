@@ -32,19 +32,9 @@
  ************************************************************************
  ************************************************************************/
 
-//#include <ctype.h>
-//#include <errno.h>
-//#include <limits.h>
-//#include <math.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <time.h>
+
 #include <iostream>
 #include <string>
-//#include <limits>
-//#include <string>
-//#include <iomanip>
 
 #include "faust/audio/channels.h"
 #include "faust/dsp/dsp.h"
@@ -62,9 +52,6 @@
 
 #include "plot.h"
 #include "heatmap.h"
-
-//for testing REMOVE WHEN ARCH FILE
-#include "mydsp.cpp"
 
 using namespace std;
 
@@ -119,13 +106,13 @@ struct DisplayUI : public GenericUI {
  *******************************************************************************
  *******************************************************************************/
 
-//<<includeIntrinsic>>
+<<includeIntrinsic>>
 
 /********************END ARCHITECTURE SECTION (part 1/2)****************/
 
 /**************************BEGIN USER SECTION **************************/
 
-//<<includeclass>>
+<<includeclass>>
 
 /***************************END USER SECTION ***************************/
 
@@ -162,7 +149,6 @@ int main(int argc, char* argv[])
 {
     dsp* DSP = new mydsp();
     
-   
     FAUSTFLOAT nb_samples,sample_rate, buffer_size, start_at_sample; 
     CMDUI* interface = new CMDUI(argc, argv);
     DSP->buildUserInterface(interface);
@@ -262,5 +248,4 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-/******************** END cvsplot.cpp ****************/
-
+/******************** END svgplot.cpp ****************/
