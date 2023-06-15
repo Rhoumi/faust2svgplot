@@ -10,6 +10,7 @@ c++ -std=c++11 -g svgplot.cpp `pkg-config --cflags --libs jack gtk+-2.0` -o faus
 
 ### notes
 * mydsp.cpp is for testing the arch / replace with your dsp.cpp in line 67 in svgplot.cpp
+* mydsp2.cpp and mydsp9.cpp are for multichannel tests
 * plot.h is the signalsmith lib file
 
 ### to do
