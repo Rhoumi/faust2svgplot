@@ -139,41 +139,44 @@ dsp* DSP;
 std::list<GUI*> GUI::fGuiList;
 ztimedmap GUI::gTimedZoneMap;
 
-#define kFrames 512
-
-signalsmith::plot::PlotStyle customStyle();
-
+//#define kFrames 512
+//
+//signalsmith::plot::PlotStyle customStyle();
+//
 signalsmith::plot::Plot2D plot;
 
-auto &line = plot.line();
 
+//Tried to configure style but don't know how it works, I hard configure the plot.h fo the moment
+//
+//signalsmith::plot::PlotStyle customStyle(){
+//signalsmith::plot::PlotStyle style;
+//style.lineWidth = 0.1;
+//style.valueSize = 1;
+//style.labelSize=2;
+//style.fontAspectRatio = 0.1;
+//return style;
+//};
+//
+//
 int main(int argc, char* argv[])
 {
     dsp* DSP = new mydsp();
     
-    FAUSTFLOAT nb_samples,sample_rate, buffer_size, start_at_sample;
-    
+   
+    FAUSTFLOAT nb_samples,sample_rate, buffer_size, start_at_sample; 
     CMDUI* interface = new CMDUI(argc, argv);
     DSP->buildUserInterface(interface);
     
-    interface->addOption("-s", &start_at_sample, 0, 0.0, 100000000.0);
     interface->addOption("-n", &nb_samples, 4096.0, 0.0, 100000000.0);
     interface->addOption("-r", &sample_rate, 44100.0, 0.0, 192000.0);
-    interface->addOption("-bs", &buffer_size, kFrames, 0.0, kFrames * 16);
+    //maybe for future addons
+    //interface->addOption("-bs", &buffer_size, kFrames, 0.0, kFrames * 16);
+    //interface->addOption("-s", &start_at_sample, 0, 0.0, 100000000.0);
+
     
     if (DSP->getNumInputs() > 0) {
         cerr << "no inputs allowed " << endl;
         exit(1);
-    }
-    
-    //signalsmith::plot::Line2D* chline = new signalsmith::plot::Line2D[DSP->getNumOutputs()];
-    //for (int i=0; i<DSP->getNumOutputs(); i++) {
-    //chline[i] = plot.line();
-    //}    
-
-
-    for (int i=0; i<DSP->getNumOutputs(); i++) {
-    //auto &ch+i = ;
     }
 
     // SR has to be read before DSP init
@@ -208,67 +211,54 @@ int main(int argc, char* argv[])
                 }
     
     //compute into inputs and outputs
-
     DSP->compute(nb_samples, DSP_inputs, DSP_outputs);
-    
-    //counter 
-    int t = 0; 
+
     //init position for max n min
     FAUSTFLOAT max = DSP_outputs[0][0]; 
     FAUSTFLOAT min =  DSP_outputs[0][0]; 
     //go through the outputs buffer
-    //
-    //
-    //
-    //
-    //
     for (int chan=0; chan< DSP->getNumOutputs(); ++chan) 
         {
+        //reset for straight line and no dotted line
+        plot.styleCounter.dash = 0;
+        //create a line for the actual channel
         auto &line = plot.line();
+        //fixed Index colour position similar to channel
+        line.styleIndex.colour = chan; 
         for (int frame=0; frame < nb_samples; ++frame) 
             { 
                 std::cout << "frame: "<< frame;
                 FAUSTFLOAT* sub_outputs = DSP_outputs[chan];
                 std::cout << " | Channel " << chan+1 << " :" << sub_outputs[frame] << "\t";
                 std::cout << std::endl;
+                //write points in line
                 line.add(frame, sub_outputs[frame]);
+              //check for max and min in order to create proportional axes
               if (max <= sub_outputs[frame]) {
               max = sub_outputs[frame];
               }
               if (min >= sub_outputs[frame]) {
               min = sub_outputs[frame];
               }  
-
             }
-        
+        //add label name
+        line.label("Channel "+std::to_string(chan));
         }
-   // for (int frame=0; frame < nb_samples; ++frame) 
-   // { 
-   //    std::cout << "frame: "<< frame;
-   //        for (int chan=0; chan< DSP->getNumOutputs(); ++chan) 
-   //        {    
-   //            FAUSTFLOAT* sub_DSP_outputs = DSP_outputs[chan];
-   //            std::cout << " ch" << chan+1 << ": " << sub_DSP_outputs[frame] << "\t";
-   //            line.add(frame, sub_DSP_outputs[frame]);
-   //            //line.add(frame+(t*buffer_size), sub_DSP_outputs[frame]);
-   //            ////index n*buffer_size
-   //            if (max <= sub_DSP_outputs[frame]) {
-   //            max = sub_DSP_outputs[frame];
-   //            }
-   //            if (min >= sub_DSP_outputs[frame]) {
-   //            min = sub_DSP_outputs[frame];
-   //            }  
-   //        }
-   // std::cout << std::endl;
-   // ++t;
-   // }
  
     plot.x.linear(0,nb_samples).major(0).minor(nb_samples).label("Samples");
 	plot.y.minors(min, max).label("Values");
+    plot.y.majors(0);
 
-        
+    //auto style = plot.defaultStyle();
+    //style.fontAspectRatio = 0.5;
+    
+    ////Logo Faust not working because not proportional to the axes, i tried but it's maybe a useless feature 
+    //plot.image({0, nb_samples/8,min-2*min,max-max/2}, "https://faust.grame.fr/community/logos/img/LOGO_FAUST_SIMPLE_BLEU.png");
+
+    plot.write("mydsp.svg");
+    delete[] DSP_inputs;
+    delete[] DSP_outputs;
     delete DSP;
-	plot.write("mydsp.svg");
     return 0;
 }
 

@@ -9,9 +9,10 @@ c++ -std=c++11 -g svgplot.cpp `pkg-config --cflags --libs jack gtk+-2.0` -o faus
 ```
 
 ### notes
-* mydsp.cpp is for testing the arch
-* plot.h & heatmap.h are the signalsmith lib files
+* mydsp.cpp is for testing the arch / replace with your dsp.cpp in line 67 in svgplot.cpp
+* plot.h is the signalsmith lib file
 
 ### to do
 * clean everything
+* for the moment the style and the colors are hard written in plot.h
 * more & more

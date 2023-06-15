@@ -38,11 +38,11 @@ static double estimateUtf8Width(const char *utf8Str);
 class PlotStyle {
 public:
 	double padding = 10;
-	double lineWidth = 1.5, precision = 100;
+	double lineWidth = 0.5, precision = 100; //1.25 100
 	double markerSize = 3.25;
 	double tickH = 4, tickV = 4;
 	// Text
-	double labelSize = 12, valueSize = 10;
+	double labelSize = 6, valueSize = 5; //12 10
 	double fontAspectRatio = 1; ///< scales size estimates, if using a particularly wide font
 	double textPadding = 5, lineHeight = 1.2;
 	// Fills
@@ -52,7 +52,8 @@ public:
 
 	std::string scriptHref = "", scriptSrc = "";
 	std::string cssPrefix = "", cssSuffix = "";
-	std::vector<std::string> colours = {"#0073E6", "#CC0000", "#00B300", "#806600", "#E69900", "#CC00CC"};
+    std::vector<std::string> colours = {"#3f48c2", "#db4b3d", "#2bdb72", "#ffeb33", "#448de7", "#dc435b","#a7f547","#f58931","#6275ba","#a63d57","#ffab7b","#ff6c7a","#36354d","#a3c0e6","#222533"};
+	//std::vector<std::string> colours = {"#0073E6", "#CC0000", "#00B300", "#806600", "#E69900", "#CC00CC"};
 	std::vector<std::vector<double>> dashes = {{}, {1.2, 1.2}, {2.8, 1.6}, {5, 4}, {4, 1, 1, 1, 1, 1}, {10, 3}, {4, 2, 1, 2}};
 	/// SVG literals for the markers.  These should be centered on `(0, 0)` and look correct next to a filled circle of radius 1.  They will be given both a stroke and fill-class, so they should specify `fill="none"`/`stroke="none"` if fill/stroke is not wanted.
 	std::vector<std::string> markers = {
