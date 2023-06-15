@@ -1,5 +1,5 @@
 # faust2svgplot
-## tool for creating a svg of plotted values.
+## tool to create a svg of plotted values.
 
 ### usage
 ```
