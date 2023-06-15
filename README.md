@@ -14,6 +14,7 @@ c++ -std=c++11 -g mydsp.cpp `pkg-config --cflags --libs jack gtk+-2.0` -o faust2
 * in usage, insert in <mydsp.dsp> your favourite faust dsp file
 * svgplot.cpp is a faust architecture file
 * plot.h is the signalsmith lib file
+* heatmap.h is not used for the moment
 
 ### to do
 * clean everything
