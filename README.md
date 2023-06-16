@@ -3,15 +3,13 @@
 
 ### usage
 ```
-faust -a svgplot.cpp -cn mydsp <mydsp.dsp> -o mydsp.cpp
+./faust2svgplot <myamazingdsp.dsp> <your compilation parameters>
 
-c++ -std=c++11 -g mydsp.cpp `pkg-config --cflags --libs jack gtk+-2.0` -o faust2svgplot
-
-./faust2svgplot <-n (nb_samples)[default:4096]> <-r (sample_rate)[default:44100]>
+./myamazingdsp <-n (nb_samples)[default:4096]> <-r (sample_rate)[default:44100]>
 ```
 
 ### notes
-* in usage, insert in <mydsp.dsp> your favourite faust dsp file
+* in usage, insert in <myamazingdsp.dsp> your favourite faust dsp file
 * svgplot.cpp is a faust architecture file
 * plot.h is the signalsmith lib file
 * heatmap.h is not used for the moment
