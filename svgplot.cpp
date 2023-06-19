@@ -40,9 +40,9 @@
 #include "faust/dsp/dsp.h"
 #include "faust/gui/console.h"
 #include "faust/gui/DecoratorUI.h"
-#ifdef FIXED_POINT
-#include "faust/dsp/fixed-point.h"
-#endif
+//#ifdef FIXED_POINT
+//#include "faust/dsp/fixed-point.h"
+//#endif
 #include "faust/misc.h"
 
 #ifdef SOUNDFILE
