@@ -98,6 +98,19 @@ struct DisplayUI : public GenericUI {
         }
     }
     
+    void declare(FAUSTFLOAT* zone, char* key, char* val)
+    {
+        std::cout << "key " << key << " val " << val;
+        std::cout << std::endl;
+
+        if (strcmp(key,"probe") == 1) {
+            std::map<string,FAUSTFLOAT*>fProbeMap;
+            std::cout << "probe" << val;
+            std::cout << std::endl;
+
+        }
+    }
+    
 };
 
 
@@ -111,6 +124,8 @@ class faust2svgplot {
         FAUSTFLOAT nsamples;
         FAUSTFLOAT srate;
         signalsmith::plot::Plot2D plot;
+        int argc; 
+        char* argv[];
 
     public : 
         
@@ -135,7 +150,6 @@ class faust2svgplot {
 
         faust2svgplot(dsp* dsp, FAUSTFLOAT sample_rate, FAUSTFLOAT nb_samples)
         {    
-
             DSP = dsp; 
             nsamples= nb_samples;
             srate = sample_rate;
@@ -237,7 +251,8 @@ int main(int argc, char* argv[])
     //maybe for future addons
     //interface->addOption("-bs", &buffer_size, kFrames, 0.0, kFrames * 16);
     //interface->addOption("-s", &start_at_sample, 0, 0.0, 100000000.0);
-    
+
+
     if (DSP->getNumInputs() > 0) {
         cerr << "no inputs allowed " << endl;
         exit(1);
@@ -246,20 +261,23 @@ int main(int argc, char* argv[])
     // SR has to be read before DSP init
     interface->process_one_init("-r");
     
-    // init signal processor and the user interface values
- 
-    faust2svgplot* f2svg= new faust2svgplot(DSP, sample_rate, nb_samples);
-    
     // modify the UI values according to the command line options, after init
     interface->process_init();
+
+    // init signal processor and the user interface values
+
+    std::cout << sample_rate << "   " << nb_samples;
+     
+    faust2svgplot* f2svg= new faust2svgplot(DSP, sample_rate, nb_samples);
+    
     
 #ifdef SOUNDFILE
     SoundUI soundinterface;
     DSP->buildUserInterface(&soundinterface);
 #endif
 
-    DisplayUI disp;
-    DSP->buildUserInterface(&disp);
+    //DisplayUI disp;
+    //DSP->buildUserInterface(&disp);
     
     f2svg->exec();
 
