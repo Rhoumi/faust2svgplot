@@ -8,6 +8,23 @@
 ./myamazingdsp <-n (nb_samples)[default:4096]> <-r (sample_rate)[default:44100]>
 ```
 
+### basic example 
+dsp code :
+```
+import("stdfaust.lib");
+process = 
+(
+    (
+        os.osc(100),
+        os.square(100)*0.15,
+        os.triangle(400)*0.15
+	 )
+);
+```
+![example](/example.png)
+
+
+
 ###  the probe metadata 
 You can use the probe metadata in bargraph in order to plot at a different node of the dsp program.
 dsp code example :
