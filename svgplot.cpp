@@ -132,9 +132,10 @@ struct DisplayUI : public GenericUI
             //printf(",\t");
             //cout << *it.second;
                 probe.add(frame, (*it.second));
-            cout << std::endl;
-            cout << "Frame : "<< frame << " it : " << *it.second;
-            cout << std::endl;
+            //debug
+            ////cout << std::endl;
+            ////cout << "Frame : "<< frame << " it : " << *it.second;
+            ////cout << std::endl;
             c++;
         }
     }
@@ -145,8 +146,8 @@ struct DisplayUI : public GenericUI
         if (strcmp(key,"probe") == 0) 
         {
             fProbeMap[std::string(val)]=zone;
-            std::cout << "probe" << val;
-            std::cout << std::endl;
+            //std::cout << "probe" << val;
+            //std::cout << std::endl;
         }
     }
     
@@ -213,7 +214,7 @@ class faust2svgplot {
             
             //create the graph legend 
             auto &legend = plot.legend(0, -1);
-            
+            DSP->compute(nsamples, DSP_inputs, DSP_outputs);
             //go through the different channels
             for (int chan=0; chan< DSP->getNumOutputs(); ++chan) 
             {
@@ -223,45 +224,31 @@ class faust2svgplot {
                 auto &line = plot.line();
                 //fixed Index colour position similar to channel
                 line.styleIndex.colour = chan;
-                
-                //buffer counter
-                int bcount = 0;
-                int nbsamples=int(nsamples);
-                do
-                {
-                    //compte on the buffer size
-                    DSP->compute(bsize, DSP_inputs, DSP_outputs);
-                    //create the outputs pointer by channel
-                    FAUSTFLOAT* sub_outputs = DSP_outputs[chan];
-                    for (int frame=0; frame < bsize; ++frame) 
-                        {
-                            //debug
-                            ////std::cout << "frame: "<< frame+(bcount*int(bsize));
-                            ////std::cout << " | Channel " << chan+1 << " :" 
-                            ////    << sub_outputs[frame] << "\t";
-                            ////std::cout << std::endl;
+                for (int frame=0; frame < nsamples; ++frame) 
+                    {
+                        //debug
+                        ////std::cout << "frame: "<< frame;
+                        FAUSTFLOAT* sub_outputs = DSP_outputs[chan];
+                        ////std::cout << " | Channel " << chan+1 << " :" << sub_outputs[frame] << "\t";
+                        ////std::cout << std::endl;
                         
-                            //add the points to the current output line
-                            line.add(frame+(bcount*int(bsize)), sub_outputs[frame]); 
-
-                            //check max and min to create proportional axes
-                            if (max <= sub_outputs[frame]) 
-                            {
-                                max = sub_outputs[frame];
-                            }
-                            if (min >= sub_outputs[frame]) 
-                            {
-                                min = sub_outputs[frame];
-                            } 
+                        //write points in line
+                        line.add(frame, sub_outputs[frame]);
+                        //check for max and min in order to create proportional axes
+                        
+                        if (max <= sub_outputs[frame]) 
+                        {
+                        max = sub_outputs[frame];
                         }
-                    //increment buffer counter
-                    ++bcount;
-                    //reduce total samples number by buffer size
-                    nbsamples -= bsize;
-                }while(nbsamples > 0);
-                //add legend name
+                        if (min >= sub_outputs[frame]) 
+                        {
+                        min = sub_outputs[frame];
+                        } 
+                    }
+                //add legend name 
                 legend.line(line,"Channel "+std::to_string(chan+1));
-            }
+                }
+                     
 
             //if probe metadata in the dsp code
             if (disp.getNumProbes()>0) 
@@ -277,16 +264,13 @@ class faust2svgplot {
                 //fixed Index colour position similar to probe number
                 probe.styleIndex.colour = numbprobes;
                 /////////////////////////////////////////////
-                    for (int chan=0; chan< DSP->getNumOutputs(); ++chan) 
-                    {
+
                     int bcount = 0;
                     int nbsamples=int(nsamples);
                         do
                         {
-                            //compte on the buffer size
+                            //compute on the buffer size
                             DSP->compute(bsize, DSP_inputs, DSP_outputs);
-                            //create the outputs pointer by channel
-                            FAUSTFLOAT* sub_outputs = DSP_outputs[chan];
                             //increment buffer counter
                             ++bcount;
                             //reduce total samples number by buffer size
@@ -297,7 +281,7 @@ class faust2svgplot {
                             disp.displayProbe(plot, probe, curpos, numbprobes);
                         }while(nbsamples > 0);
                     legend.line(probe,"Probe "+std::to_string(numbprobes+1));
-                    }
+                    
                 }
             }
             //create the axes
@@ -306,7 +290,7 @@ class faust2svgplot {
             plot.y.majors(0);
             //create the svg file
             plot.write("mydsp.svg");
-
+            cout<<"mydsp.svg;"<<std::endl;
             }
 
        
