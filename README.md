@@ -18,7 +18,7 @@ process =
         os.osc(100),
         os.square(100)*0.15,
         os.triangle(400)*0.15
-	 )
+    )
 );
 ```
 ![example](/example.png)
