@@ -5,7 +5,7 @@
 ```
 ./faust2svgplot <myamazingdsp.dsp> <your compilation parameters>
 
-./myamazingdsp <-n (nb_samples)[default:4096]> <-r (sample_rate)[default:44100]>
+./myamazingdsp <-n (nb_samples)[default:4096]> <-bs (buffer_size)[default:1]> <-r (sample_rate)[default:44100]>
 ```
 
 ### basic example 
