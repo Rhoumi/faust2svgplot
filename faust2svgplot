@@ -89,7 +89,7 @@ for f in $FILES; do
     (
         $CXX $CXXFLAGS "$f.cpp" $PROCARCH $LLVM_LIBS $ARCHLIB $SOUNDFILELIBS $OMP -DFAUSTFLOAT=$FAUSTFLOAT -o "${f%.dsp}"
     ) > /dev/null || exit
-    rm "$f.cpp"
+    #rm "$f.cpp"
 
     # collect binary file name for FaustWorks
     BINARIES="$BINARIES${f%.dsp};"
