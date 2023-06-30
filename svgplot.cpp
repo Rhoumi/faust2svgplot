@@ -36,6 +36,7 @@
 #include <cstdio>
 #include <faust/gui/UI.h>
 #include <iostream>
+#include <ostream>
 #include <string>
 
 #include "faust/audio/channels.h"
@@ -61,47 +62,8 @@ using namespace std;
 struct DisplayUI : public GenericUI 
 {
     
-    map<string, FAUSTFLOAT*> fTable;
     map<string, FAUSTFLOAT*> fProbeMap;
-       
-    // -- passive widgets
-    virtual void addHorizontalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max)
-    {
-        fTable[label] = zone;
-    }
-    virtual void addVerticalBargraph(const char* label, FAUSTFLOAT* zone, FAUSTFLOAT min, FAUSTFLOAT max)
-    {
-        fTable[label] = zone;
-    }
-    
-    void displayHeaders()
-    {
-        int c = 0;
-        if (fTable.size() > 0)
-            printf(",\t");
-        for (const auto& it : fTable) 
-        {
-            if (c > 0)
-                printf(",\t");
-            printf("bargraph %d", c + 1);
-            c++;
-        }
-    }
-    
-    void display()
-    {
-        int c = 0;
-        if (fTable.size() > 0)
-                printf(",\t");
-        for (const auto& it : fTable) 
-        {
-            if (c > 0)
-                printf(",\t");
-            cout << *it.second;
-            c++;
-        }
-    }
-
+     
     void displayProbeHeaders()
     {
         int c = 0;
@@ -121,22 +83,26 @@ struct DisplayUI : public GenericUI
         return fProbeMap.size();
     }
 
-    void displayProbe(signalsmith::plot::Plot2D &plot, signalsmith::plot::Line2D &probe, int &frame, int &chan)
+    void displayProbe(signalsmith::plot::Plot2D &plot, signalsmith::plot::Line2D &probe, int frame, int chan)
     {
         int c=0;
         if (fProbeMap.size() > 0)
-            //cout << fProbeMap.size();
-        for (const auto& it : fProbeMap) 
         {
-            if ( c == chan)
-            //printf(",\t");
-            //cout << *it.second;
+            //cout << fProbeMap.size();
+            for (const auto& it : fProbeMap) 
+            {
+                if ( c == chan)
+                {
+                //printf(",\t");
+                //cout << *it.second;
                 probe.add(frame, (*it.second));
-            //debug
-            ////cout << std::endl;
-            ////cout << "Frame : "<< frame << " it : " << *it.second;
-            ////cout << std::endl;
-            c++;
+                //debug
+                ////cout << std::endl;
+                ////cout << "Frame : "<< frame << " it : " << *it.second;
+                ////cout << std::endl;
+                c++;
+                }
+            }
         }
     }
 
@@ -165,6 +131,7 @@ class faust2svgplot {
         FAUSTFLOAT nsamples;
         FAUSTFLOAT srate;
         FAUSTFLOAT bsize;
+        FAUSTFLOAT strsample;
         signalsmith::plot::Plot2D plot;
 
     public : 
@@ -173,7 +140,8 @@ class faust2svgplot {
         {
             
             FAUSTFLOAT** buffer = new FAUSTFLOAT*[chan];
-                for (int i = 0; i < chan; i++) {
+                for (int i = 0; i < chan; i++) 
+                {
                     buffer[i] = new FAUSTFLOAT[buffer_size];
                     memset(buffer[i], 0, sizeof(FAUSTFLOAT) * buffer_size);
                 }
@@ -197,8 +165,6 @@ class faust2svgplot {
             bsize = buffer_size;
             DSP_inputs = createbuffer(DSP->getNumInputs(), nsamples);
             DSP_outputs = createbuffer(DSP->getNumOutputs(),nsamples);
-            //init signal processor and the user interface values
-            DSP->init(sample_rate);
 
         }
 
@@ -211,10 +177,12 @@ class faust2svgplot {
             //init position for max n min
             FAUSTFLOAT max = DSP_outputs[0][0]; 
             FAUSTFLOAT min =  DSP_outputs[0][0]; 
-            
+                        
+            //init signal processor and the user interface values
+            DSP->init(srate);
+
             //create the graph legend 
             auto &legend = plot.legend(0, -1);
-            DSP->compute(nsamples, DSP_inputs, DSP_outputs);
             //go through the different channels
             for (int chan=0; chan< DSP->getNumOutputs(); ++chan) 
             {
@@ -225,29 +193,29 @@ class faust2svgplot {
                 //fixed Index colour position similar to channel
                 line.styleIndex.colour = chan;
                 for (int frame=0; frame < nsamples; ++frame) 
+                {
+                    //debug
+                    std::cout << "frame: "<< frame;
+                    FAUSTFLOAT* sub_outputs = DSP_outputs[chan];
+                    std::cout << " | Channel " << chan+1 << " :" << sub_outputs[frame] << "\t";
+                    std::cout << std::endl;
+                    
+                    //write points in line
+                    line.add(frame, sub_outputs[frame]);
+                    //check for max and min in order to create proportional axes
+                    
+                    if (max <= sub_outputs[frame]) 
                     {
-                        //debug
-                        ////std::cout << "frame: "<< frame;
-                        FAUSTFLOAT* sub_outputs = DSP_outputs[chan];
-                        ////std::cout << " | Channel " << chan+1 << " :" << sub_outputs[frame] << "\t";
-                        ////std::cout << std::endl;
-                        
-                        //write points in line
-                        line.add(frame, sub_outputs[frame]);
-                        //check for max and min in order to create proportional axes
-                        
-                        if (max <= sub_outputs[frame]) 
-                        {
                         max = sub_outputs[frame];
-                        }
-                        if (min >= sub_outputs[frame]) 
-                        {
-                        min = sub_outputs[frame];
-                        } 
                     }
+                    if (min >= sub_outputs[frame]) 
+                    {
+                        min = sub_outputs[frame];
+                    } 
+                }
                 //add legend name 
                 legend.line(line,"Channel "+std::to_string(chan+1));
-                }
+            }
                      
 
             //if probe metadata in the dsp code
@@ -255,43 +223,42 @@ class faust2svgplot {
             {
                 for (int numbprobes=0; numbprobes< disp.getNumProbes(); ++numbprobes) 
                 {
-                DSP->init(srate);
-                //probegraph_init
-                //reset for dotted line and no straight line
-                plot.styleCounter.dash = 5; 
-                //create a line
-                auto &probe = plot.line();
-                //fixed Index colour position similar to probe number
-                probe.styleIndex.colour = numbprobes;
-                /////////////////////////////////////////////
+                    DSP->init(srate);
+                    //probegraph_init
+                    //reset for dotted line and no straight line
+                    plot.styleCounter.dash = 5; 
+                    //create a line
+                    auto &probe = plot.line();
+                    //fixed Index colour position similar to probe number
+                    probe.styleIndex.colour = numbprobes;
+                    /////////////////////////////////////////////
 
                     int bcount = 0;
                     int nbsamples=int(nsamples);
-                        do
-                        {
-                            //compute on the buffer size
-                            DSP->compute(bsize, DSP_inputs, DSP_outputs);
-                            //increment buffer counter
-                            ++bcount;
-                            //reduce total samples number by buffer size
-                            nbsamples -= bsize;
-                            //create a current frame position for probes
-                            int curpos = bcount*int(bsize);
-                            ////disp.displayProbeHeaders();
-                            disp.displayProbe(plot, probe, curpos, numbprobes);
-                        }while(nbsamples > 0);
+                    do
+                    {
+                        //compute on the buffer size
+                        DSP->compute(bsize, DSP_inputs, DSP_outputs);
+                        //increment buffer counter
+                        ++bcount;
+                        //reduce total samples number by buffer size
+                        nbsamples -= bsize;
+                        //create a current frame position for probes
+                        int curpos = bcount*int(bsize);
+                        ////disp.displayProbeHeaders();
+                        disp.displayProbe(plot, probe, curpos, numbprobes);
+                    }while(nbsamples > 0);
                     legend.line(probe,"Probe "+std::to_string(numbprobes+1));
-                    
                 }
             }
-            //create the axes
-            plot.x.linear(0,nsamples).major(0).minor(nsamples).label("Samples");
-	        plot.y.minors(min, max).label("Values");
-            plot.y.majors(0);
-            //create the svg file
-            plot.write("mydsp.svg");
-            cout<<"mydsp.svg;"<<std::endl;
-            }
+        //create the axes
+        plot.x.linear(0,nsamples).major(0).minor(nsamples).label("Samples");
+	    plot.y.minors(min, max).label("Values");
+        plot.y.majors(0);
+        //create the svg file
+        plot.write("mydsp.svg");
+        cout<<"mydsp.svg;"<<std::endl;
+        }
 
        
         virtual ~faust2svgplot()
@@ -325,9 +292,7 @@ class faust2svgplot {
 std::list<GUI*> GUI::fGuiList;
 ztimedmap GUI::gTimedZoneMap;
 
-signalsmith::plot::Plot2D plot;
-
-#define kFrames 25
+#define kFrames 1
 
 int main(int argc, char* argv[])
 {
@@ -340,11 +305,10 @@ int main(int argc, char* argv[])
     interface->addOption("-n", &nb_samples, 4096.0, 0.0, 100000000.0);
     interface->addOption("-r", &sample_rate, 44100.0, 0.0, 192000.0);
     interface->addOption("-bs", &buffer_size, kFrames, 0.0, kFrames * 16);
-    //maybe for future addons
     //interface->addOption("-s", &start_at_sample, 0, 0.0, 100000000.0);
-
-
-    if (DSP->getNumInputs() > 0) {
+    
+    if (DSP->getNumInputs() > 0) 
+    {
         cerr << "no inputs allowed " << endl;
         exit(1);
     }
@@ -355,14 +319,13 @@ int main(int argc, char* argv[])
     // modify the UI values according to the command line options, after init
     interface->process_init();
 
-    //std::cout << sample_rate << "   " << nb_samples;
-    faust2svgplot* f2svg= new faust2svgplot(DSP, sample_rate, nb_samples, buffer_size);
-    
-    
 #ifdef SOUNDFILE
     SoundUI soundinterface;
     DSP->buildUserInterface(&soundinterface);
 #endif
+
+    //std::cout << sample_rate << "   " << nb_samples;
+    faust2svgplot* f2svg= new faust2svgplot(DSP, sample_rate, nb_samples, buffer_size);
 
     f2svg->exec();
 
