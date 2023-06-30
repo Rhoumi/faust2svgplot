@@ -85,23 +85,26 @@ struct DisplayUI : public GenericUI
 
     void displayProbe(signalsmith::plot::Plot2D &plot, signalsmith::plot::Line2D &probe, int frame, int chan)
     {
-        int c=0;
         if (fProbeMap.size() > 0)
         {
+            for (int c=0; c<fProbeMap.size(); c++) {
             //cout << fProbeMap.size();
             for (const auto& it : fProbeMap) 
             {
-                if ( c == chan)
+
+                if( c == chan)
                 {
                 //printf(",\t");
                 //cout << *it.second;
                 probe.add(frame, (*it.second));
                 //debug
-                ////cout << std::endl;
-                ////cout << "Frame : "<< frame << " it : " << *it.second;
-                ////cout << std::endl;
-                c++;
+                //cout << std::endl;
+                //cout << "Frame : "<< frame << " it : " << *it.second;
+                //cout << std::endl;
                 }
+                c++;
+
+            }
             }
         }
     }
@@ -157,15 +160,15 @@ class faust2svgplot {
                 delete [] buffer;
         }
 
-        faust2svgplot(dsp* dsp, FAUSTFLOAT sample_rate, FAUSTFLOAT nb_samples, FAUSTFLOAT buffer_size)
+        faust2svgplot(dsp* dsp, FAUSTFLOAT sample_rate, FAUSTFLOAT nb_samples, FAUSTFLOAT buffer_size, FAUSTFLOAT start_at_sample)
         {   
             DSP = dsp; 
             nsamples= nb_samples;
             srate = sample_rate;
             bsize = buffer_size;
+            strsample = start_at_sample;
             DSP_inputs = createbuffer(DSP->getNumInputs(), nsamples);
             DSP_outputs = createbuffer(DSP->getNumOutputs(),nsamples);
-
         }
 
 
@@ -183,8 +186,11 @@ class faust2svgplot {
 
             //create the graph legend 
             auto &legend = plot.legend(0, -1);
-            //go through the different channels
+
+            //compute
             DSP->compute(nsamples, DSP_inputs, DSP_outputs);
+
+            //go through the different channels
             for (int chan=0; chan< DSP->getNumOutputs(); ++chan) 
             {
                 //reset for straight line and no dotted line
@@ -193,13 +199,13 @@ class faust2svgplot {
                 auto &line = plot.line();
                 //fixed Index colour position similar to channel
                 line.styleIndex.colour = chan;
-                for (int frame=0; frame < nsamples; ++frame) 
+                for (int frame=0+strsample; frame < nsamples; ++frame) 
                 {
                     //debug
-                    std::cout << "frame: "<< frame;
+                    ////std::cout << "frame: "<< frame;
                     FAUSTFLOAT* sub_outputs = DSP_outputs[chan];
-                    std::cout << " | Channel " << chan+1 << " :" << sub_outputs[frame] << "\t";
-                    std::cout << std::endl;
+                    ////std::cout << " | Channel " << chan+1 << " :" << sub_outputs[frame] << "\t";
+                    ////std::cout << std::endl;
                     
                     //write points in line
                     line.add(frame, sub_outputs[frame]);
@@ -233,9 +239,12 @@ class faust2svgplot {
                     //fixed Index colour position similar to probe number
                     probe.styleIndex.colour = numbprobes;
                     /////////////////////////////////////////////
-
                     int bcount = 0;
-                    int nbsamples=int(nsamples);
+                    int nbsamples=int(nsamples)-strsample;
+                    if (strsample>0) 
+                    {
+                        DSP->compute(strsample,DSP_inputs,DSP_outputs);
+                    }
                     do
                     {
                         //compute on the buffer size
@@ -245,7 +254,7 @@ class faust2svgplot {
                         //reduce total samples number by buffer size
                         nbsamples -= bsize;
                         //create a current frame position for probes
-                        int curpos = bcount*int(bsize);
+                        int curpos = strsample-1+bcount*int(bsize);
                         ////disp.displayProbeHeaders();
                         disp.displayProbe(plot, probe, curpos, numbprobes);
                     }while(nbsamples > 0);
@@ -253,7 +262,7 @@ class faust2svgplot {
                 }
             }
         //create the axes
-        plot.x.linear(0,nsamples).major(0).minor(nsamples).label("Samples");
+        plot.x.linear(0+strsample,nsamples).major(0+strsample).minor(nsamples).label("Samples");
 	    plot.y.minors(min, max).label("Values");
         plot.y.majors(0);
         //create the svg file
@@ -306,7 +315,7 @@ int main(int argc, char* argv[])
     interface->addOption("-n", &nb_samples, 4096.0, 0.0, 100000000.0);
     interface->addOption("-r", &sample_rate, 44100.0, 0.0, 192000.0);
     interface->addOption("-bs", &buffer_size, kFrames, 0.0, kFrames * 16);
-    //interface->addOption("-s", &start_at_sample, 0, 0.0, 100000000.0);
+    interface->addOption("-s", &start_at_sample, 0, 0.0, 100000000.0);
     
     if (DSP->getNumInputs() > 0) 
     {
@@ -326,7 +335,7 @@ int main(int argc, char* argv[])
 #endif
 
     //std::cout << sample_rate << "   " << nb_samples;
-    faust2svgplot* f2svg= new faust2svgplot(DSP, sample_rate, nb_samples, buffer_size);
+    faust2svgplot* f2svg= new faust2svgplot(DSP, sample_rate, nb_samples, buffer_size, start_at_sample);
 
     f2svg->exec();
 

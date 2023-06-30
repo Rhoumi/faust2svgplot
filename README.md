@@ -5,7 +5,7 @@
 ```
 ./faust2svgplot <your compilation parameters> <myamazingdsp.dsp> 
 
-./myamazingdsp <-n (nb_samples)[default:4096]> <-bs (buffer_size)[default:1]> <-r (sample_rate)[default:44100]>
+./myamazingdsp <-n (nb_samples)[default:4096]> <-bs (buffer_size)[default:1]> <-r (sample_rate)[default:44100]> <-s (start_at_sample)[default:0]>
 ```
 ### basic example 
 dsp code :
@@ -49,7 +49,3 @@ process =
 #### notes
 * The probe are evaluated at every buffer size end. 
 If you want the maximum precision, you will need to have a buffer size of 1 sample (set to 1 by default)
-
-#### to do list
-* clean everything 
-* start at sample option 
