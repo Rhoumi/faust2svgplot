@@ -3,11 +3,10 @@
 
 ### usage
 ```
-./faust2svgplot <myamazingdsp.dsp> <your compilation parameters>
+./faust2svgplot <your compilation parameters> <myamazingdsp.dsp> 
 
 ./myamazingdsp <-n (nb_samples)[default:4096]> <-bs (buffer_size)[default:1]> <-r (sample_rate)[default:44100]>
 ```
-
 ### basic example 
 dsp code :
 ```
@@ -23,6 +22,8 @@ process =
 ```
 ![example](/example.png)
 
+#### notes
+* in usage, insert in <myamazingdsp.dsp> your favourite faust dsp file
 
 
 ###  the probe metadata 
@@ -30,25 +31,25 @@ You can use the probe metadata in bargraph in order to plot at a different node 
 dsp code example :
 ```cpp
 import("stdfaust.lib");
+
+SendtoOut(n) = vbargraph("[probe:%n]label%n",0,1);
+
 process = 
 (
     (
-        ((os.osc(100):vbargraph("[probe:1]label1",0,1)),
-        (os.square(100)*0.15:vbargraph("[probe:2]label2",0,1)),
-        (os.triangle(400)*0.15:vbargraph("[probe:3]label3",0,1)))
+        ((os.osc(100):SendtoOut(1)),
+        (os.square(100)*0.15:SendtoOut(2)),
+        (os.triangle(400)*0.15:SendtoOut(3)))
         :>_
     )
 );
 ```
 ![probe example](/probeexample.png)
 
-### notes
-* in usage, insert in <myamazingdsp.dsp> your favourite faust dsp file
-* svgplot.cpp is a faust architecture file
-* plot.h is the signalsmith lib file
-* heatmap.h is not used for the moment
+#### notes
+* The probe are evaluated at every buffer size end. 
+If you want the maximum precision, you will need to have a buffer size of 1 sample (set to 1 by default)
 
-### to do
-* clean everything
-* for the moment the style and the colors are hard written in plot.h
-
+#### to do list
+* clean everything 
+* start at sample option 
