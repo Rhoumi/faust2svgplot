@@ -184,6 +184,7 @@ class faust2svgplot {
             //create the graph legend 
             auto &legend = plot.legend(0, -1);
             //go through the different channels
+            DSP->compute(nsamples, DSP_inputs, DSP_outputs);
             for (int chan=0; chan< DSP->getNumOutputs(); ++chan) 
             {
                 //reset for straight line and no dotted line
