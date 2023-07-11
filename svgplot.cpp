@@ -252,7 +252,6 @@ class faust2svgplot {
                     slegend.line(sline,"Channel "+std::to_string(chan+1));
                     //
                     stplot.x.linear(0+strsample,nsamples).major(0+strsample).minor(nsamples).label("Samples");
-                    cout << "min : " << min << std::endl <<"max : " << max <<std::endl;
 	                stplot.y.minors(min,max).label("Values");
                     stplot.y.majors(0);
                     //create the svg file
@@ -352,6 +351,7 @@ class faust2svgplot {
                     }
 
                 }
+                GenerateHtml(DSP->getNumOutputs(),disp.getNumProbes(),splt);
 
             }
         //create the axes
@@ -363,7 +363,38 @@ class faust2svgplot {
         cout<<"mydsp.svg;"<<std::endl; 
         }
 
-       
+        void GenerateHtml(int channels,  int numbprobes, int split)
+        {
+            std::ofstream file("output.html"); // Create a file named "output.html"
+            if (file.is_open()) 
+            {
+                file << "<html>\n";
+                file << "<head>\n";
+                file << "<title>SVG Gallery</title>\n";
+                file << "</head>\n";
+                file << "<body>\n";
+                file << "<img src=mydsp.svg>\n";
+                if (split==1) 
+                {
+                    for (int i=0; i<channels; i++) {
+                        file << "<img src=" <<"mydsp_Channel"+std::to_string(i+1)<<".svg>\n";
+                    }
+                    for (int i=0; i<numbprobes; i++) {
+                        file << "<img src=" <<"mydsp_Probe"+std::to_string(i+1)<<".svg>\n";
+                    }
+
+                }
+                    file << "</body>\n";
+                    file << "</html>\n";
+                    file.close();
+                
+                std::cout << "SVG Gallery generated successfully!" << std::endl;
+                std::cout << "output.html;" << std::endl;
+            } else 
+            {
+                std::cerr << "Failed to create the SVG Gallery!" << std::endl;
+            }
+        }
         virtual ~faust2svgplot()
         {
             deletebuffer(DSP_inputs, DSP->getNumInputs());
