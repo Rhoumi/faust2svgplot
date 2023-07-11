@@ -54,5 +54,5 @@ You can split your graph in multiples graph.svg for every probe and every channe
 
 
 #### notes
-* The probe are evaluated at every buffer size end. 
+* The probes are evaluated at every buffer size end. 
 If you want the maximum precision, you will need to have a buffer size of 1 sample (set to 1 by default)
