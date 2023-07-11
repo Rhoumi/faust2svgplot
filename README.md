@@ -5,7 +5,7 @@
 ```
 ./faust2svgplot <your compilation parameters> <myamazingdsp.dsp> 
 
-./myamazingdsp <-n (nb_samples)[default:4096]> <-bs (buffer_size)[default:1]> <-r (sample_rate)[default:44100]> <-s (start_at_sample)[default:0]>
+./myamazingdsp <-n (nb_samples)[default:4096]> <-bs (buffer_size)[default:1]> <-r (sample_rate)[default:44100]> <-s (start_at_sample)[default:0]> <-sp (split)[default:0]>
 ```
 ### basic example 
 dsp code :
@@ -45,6 +45,13 @@ process =
 );
 ```
 ![probe example](/probeexample.png)
+
+### the split option
+You can split your graph in multiples graph.svg for every probe and every channel.
+* usage : `./myamazingdsp -sp 1`
+
+![example](/splitexample.png)
+
 
 #### notes
 * The probe are evaluated at every buffer size end. 
